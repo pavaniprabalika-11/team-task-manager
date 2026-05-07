@@ -59,25 +59,41 @@ Railway
 📂 Project Structure
 team-task-manager/
 │
+
 ├── backend/
+
 │   ├── app.py
+
 │   ├── requirements.txt
+
 │   ├── routes/
+
 │   ├── models/
+
 │   ├── middleware/
+
 │   └── config/
+
 │
+
 ├── frontend/
+
 │   ├── index.html
+
 │   ├── signup.html
+
 │   ├── dashboard.html
+
 │   ├── style.css
+
 │   └── script.js
 │
 └── README.md
 
 ⚙️ Installation & Setup
+
 1️⃣ Clone Repository
+
 git clone https://github.com/pavaniprabalika-11/team-task-manager.git
 
 2️⃣ Navigate To Backend
@@ -121,18 +137,28 @@ PUT /api/tasks/update-status/<task_id>
 
 <img width="1920" height="1020" alt="Screenshot 2026-05-07 171840" src="https://github.com/user-attachments/assets/1cec4312-1adc-414b-b1d9-11b643e66400" />
 
+
 🚀 Future Enhancements
+
 📅 Task Deadlines
+
 📧 Email Notifications
+
 📊 Analytics Dashboard
+
 💬 Team Chat System
+
 🌙 Dark Mode
+
 📁 File Upload Support
 
 
 👩‍💻 Author
+
 Pavani Prabalika
+
 https://github.com/pavaniprabalika-11
+
 teddypavani64@gmail.com
 
 
