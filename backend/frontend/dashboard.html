@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="navbar">
+        <h2>Team Task Manager</h2>
+        <p>Admin Dashboard</p>
+    </div>
+
+    <div class="card">
+
+        <h1>Dashboard</h1>
+
+        <button onclick="logout()">
+            Logout
+        </button>
+
+        <div class="success-message" id="success-message">
+            Success
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div class="stats">
+
+            <div class="box">
+                <h3>Total Projects</h3>
+                <p id="projects">0</p>
+            </div>
+
+            <div class="box">
+                <h3>Total Tasks</h3>
+                <p id="tasks">0</p>
+            </div>
+
+            <div class="box">
+                <h3>Completed</h3>
+                <p id="completed">0</p>
+            </div>
+
+            <div class="box">
+                <h3>Pending</h3>
+                <p id="pending">0</p>
+            </div>
+
+            <div class="box">
+                <h3>In Progress</h3>
+                <p id="progress">0</p>
+            </div>
+
+        </div>
+
+        <h2>Create Project</h2>
+
+        <input type="text"
+        id="project-name"
+        placeholder="Project Name">
+
+        <input type="text"
+        id="project-description"
+        placeholder="Project Description">
+
+        <button onclick="createProject()">
+            Create Project
+        </button>
+
+        <h2>Create Task</h2>
+
+        <input type="text"
+        id="task-title"
+        placeholder="Task Title">
+
+        <input type="text"
+        id="task-description"
+        placeholder="Task Description">
+
+        <input type="text"
+        id="assigned-to"
+        placeholder="Assigned To Email">
+
+        <button onclick="createTask()">
+            Create Task
+        </button>
+
+        <h2>Tasks</h2>
+
+        <div id="task-list"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function loadDashboard(){
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        "http://127.0.0.1:5000/api/dashboard/",
+        {
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("projects").innerText =
+    data.total_projects;
+
+    document.getElementById("tasks").innerText =
+    data.total_tasks;
+
+    document.getElementById("completed").innerText =
+    data.completed_tasks;
+
+    document.getElementById("pending").innerText =
+    data.pending_tasks;
+
+    document.getElementById("progress").innerText =
+    data.inprogress_tasks;
+}
+
+
+
+async function createProject(){
+
+    const loader =
+    document.getElementById("loader");
+
+    loader.style.display = "block";
+
+    const token = localStorage.getItem("token");
+
+    const name =
+    document.getElementById("project-name").value;
+
+    const description =
+    document.getElementById("project-description").value;
+
+    const response = await fetch(
+        "http://127.0.0.1:5000/api/projects/create",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                Authorization:`Bearer ${token}`
+            },
+
+            body:JSON.stringify({
+                name,
+                description
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    loader.style.display = "none";
+
+    const success =
+    document.getElementById("success-message");
+
+    success.style.display = "block";
+
+    success.innerText = data.msg;
+
+    setTimeout(() => {
+        success.style.display = "none";
+    }, 2000);
+
+    document.getElementById("project-name").value = "";
+    document.getElementById("project-description").value = "";
+
+    loadDashboard();
+}
+
+
+
+async function createTask(){
+
+    const loader =
+    document.getElementById("loader");
+
+    loader.style.display = "block";
+
+    const token = localStorage.getItem("token");
+
+    const title =
+    document.getElementById("task-title").value;
+
+    const description =
+    document.getElementById("task-description").value;
+
+    const assigned_to =
+    document.getElementById("assigned-to").value;
+
+    const response = await fetch(
+        "http://127.0.0.1:5000/api/tasks/create",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                Authorization:`Bearer ${token}`
+            },
+
+            body:JSON.stringify({
+                title,
+                description,
+                assigned_to
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    loader.style.display = "none";
+
+    const success =
+    document.getElementById("success-message");
+
+    success.style.display = "block";
+
+    success.innerText = data.msg;
+
+    setTimeout(() => {
+        success.style.display = "none";
+    }, 2000);
+
+    document.getElementById("task-title").value = "";
+    document.getElementById("task-description").value = "";
+    document.getElementById("assigned-to").value = "";
+
+    loadTasks();
+    loadDashboard();
+}
+
+
+
+async function loadTasks(){
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        "http://127.0.0.1:5000/api/tasks/all",
+        {
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        }
+    );
+
+    const tasks = await response.json();
+
+    let output = "";
+
+    tasks.forEach(task => {
+
+        output += `
+
+        <div class="box" style="margin-top:20px;">
+
+            <h3>${task.title}</h3>
+
+            <p>${task.description}</p>
+
+            <p>${task.assigned_to}</p>
+
+            <select onchange="updateStatus('${task._id}', this.value)">
+
+                <option value="pending"
+                ${task.status === 'pending' ? 'selected' : ''}>
+                Pending
+                </option>
+
+                <option value="in-progress"
+                ${task.status === 'in-progress' ? 'selected' : ''}>
+                In Progress
+                </option>
+
+                <option value="completed"
+                ${task.status === 'completed' ? 'selected' : ''}>
+                Completed
+                </option>
+
+            </select>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("task-list").innerHTML =
+    output;
+}
+
+
+
+async function updateStatus(taskId, status){
+
+    const token = localStorage.getItem("token");
+
+    await fetch(
+        `http://127.0.0.1:5000/api/tasks/update/${taskId}`,
+        {
+            method:"PUT",
+
+            headers:{
+                "Content-Type":"application/json",
+                Authorization:`Bearer ${token}`
+            },
+
+            body:JSON.stringify({
+                status
+            })
+        }
+    );
+
+    loadDashboard();
+    loadTasks();
+}
+
+
+
+function logout(){
+
+    localStorage.removeItem("token");
+
+    window.location.href =
+    "index.html";
+}
+
+
+loadDashboard();
+loadTasks();
+
+</script>
+
+</body>
+</html>
